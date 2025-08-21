@@ -39,14 +39,13 @@
   .special .msg{ line-height:1.9 }
   .cta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
 
-  /* ▼▼ ここが修正ポイント：CTAボタンをやさしいピンク背景＋濃いピンク枠＋白文字で統一 ▼▼ */
+  /* CTAボタン：やさしいピンク背景＋濃いピンク枠＋白文字 */
   .btn-link{
     display:inline-block; text-decoration:none; font-weight:700; border-radius:999px; padding:10px 14px;
-    border:2px solid var(--hotpink); background:var(--pink); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06);
+    border:2px solid var(--hotpink); background:var(--pink); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06)
   }
   .btn-link.primary{ background:var(--pink); color:#fff; border-color:var(--hotpink) }
   .btn-link:active{ transform:translateY(1px) scale(.99) }
-  /* ▲▲ 修正ここまで ▲▲ */
 
   .note{ font-size:12px; opacity:.75; margin-top:6px }
 </style>
@@ -113,8 +112,11 @@
   </div>
 
 <script>
-(() => {
-  /* ===== 大量バリエーション ===== */
+/* ===== 安定動作用のガード（どこかでエラーが出てもボタンが無反応にならないように） ===== */
+(function(){
+  const $ = s => document.querySelector(s);
+
+  // 配列群
   const TOTAL = [
     ["大吉","願いが実るサイン。大胆にいこう🌈"],
     ["大吉","タイミングが噛み合う日。直感に従って✨"],
@@ -129,7 +131,6 @@
     ["凶","守りの日。早めの撤退が勝ち🫶"],
     ["凶","静観が賢い選択。自己ケアに時間を。"]
   ];
-
   const LOVE = [
     "笑顔の挨拶が縁を引き寄せるよ。","返信は短く丁寧に。相手のペース尊重◎","甘えすぎ注意。まず“ありがとう”。",
     "温かい飲み物をご一緒に。距離が縮まる。","思い込みを外して観察すると発見が。","鏡を見る回数＝魅力度UPのサイン。",
@@ -137,7 +138,6 @@
     "過去より“今なにをするか”を話題に。","柔らかな香りが武器。匂いケア◎","ラッキー色を身につけて出会い運UP。",
     "境界線はやさしく明確に。無理しない。","“また今度ね”の約束を具体的な日に。"
   ];
-
   const WORK = [
     "午前中が勝負。重いタスクから先に！","メモ魔で段取り良く。チェックは二重で◎","頼られることで評価UP。ひと声かける。",
     "提出前に“余白”を整えると伝わり度UP。","小さな改善提案が通りやすい日。","ToDoを3つに絞ると集中できる。",
@@ -145,7 +145,6 @@
     "資料は図解1枚あると刺さる。","早歩き移動＝脳が冴えるブースト。","締切の30分前を“本当の締切”に設定。",
     "メールの件名を具体に→即レス率UP。","5分だけ着手でエンジンをかける。"
   ];
-
   const MONEY = [
     "ポイント活用で得する日。必要な物だけに◎","“安い”より“長く使える”基準で選ぶと吉。","現金を少し多めに持つと安心感が違う。",
     "サブスクの見直しチャンス！","買うより借りる・シェアが吉。","差し入れが巡り巡って返ってくる。",
@@ -153,19 +152,15 @@
     "冷蔵庫“使い切り”で臨時収入気分。","欲しいものは“48時間ルール”で判断。","固定費の年1見直しメモをセット。",
     "Payのポイント交換忘れにご用心。","クーポンは期限前に棚卸し。"
   ];
-
   const COLORS = ["さくらピンク","ミントグリーン","ラベンダー","空色","ミルクホワイト","コーラル","ハニーイエロー","ネイビー","シャンパンゴールド","アイスグレー","ライラック","ペールベージュ","チェリーレッド","パウダーブルー"];
   const ITEMS  = ["ハンカチ","小さな鏡","お茶","イヤホン","ペン","アロマ","温かい飲み物","マスクケース","飴ちゃん","目薬","モバイルバッテリー","ハンドクリーム","ヘアゴム","リップ","ミニノート","ティッシュケース"];
   const SPOTS  = ["朝の光","緑の見える場所","静かな角席","本屋さん","神社の鳥居","カフェの窓際","きれいなトイレ","駅ホームの端","近所の公園","エレベーター前で深呼吸","階段の踊り場","図書館の入口付近","花が飾られた場所","ベンチの日なた"];
-
   const ADVICES = [
     "“3回深呼吸→微笑む”で運の流れが整うよ。","やることを3つだけ書き出し、終えたら小さくガッツポーズ。","姿勢を1cmだけ伸ばす。世界の見え方が変わる。",
     "お礼は“具体＋即”。相手の名前を添えると最強。","15分の散歩でアイデア湧く。太陽を浴びよう。","スマホ写真を10枚消すと頭が軽くなる。",
     "靴を拭く／磨くと足取りまで軽く。","机の角を1箇所だけ片づける→波及効果◎","“今日はここまででOK”を自分に許可する。",
     "紙に“ありがとう”を書くと流れが良くなる。","湯船5分だけでも気分が整う。","温かい飲み物で心を戻す。"
   ];
-
-  // ペルソナ向け“寄り添い＆希望”メッセージ（総合運に応じて切替）
   const SPECIAL = {
     good: [
       "過去の痛みを抱えたままでも大丈夫。あなたはもう“愛され直す準備”ができています。小さな一歩で、やさしいご縁が動き出します。",
@@ -181,73 +176,82 @@
     ]
   ];
 
-  /* ===== ヘルパ ===== */
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
   const range = n => [...Array(n).keys()];
-  const $ = s => document.querySelector(s);
 
-  const area=$("#resultArea"), btn=$("#drawBtn"), again=$("#againBtn"), share=$("#shareBtn");
+  const area  = $("#resultArea");
+  const btn   = $("#drawBtn");
+  const again = $("#againBtn");
+  const share = $("#shareBtn");
 
-  function draw(){
-    area.hidden = false;
-
-    // 総合運
-    const [rank,msg] = pick(TOTAL);
-    $("#total").textContent = `${rank}　${msg}`;
-
-    // 💖マーク（大吉=5 etc）
-    const starsWrap = $("#stars");
-    starsWrap.innerHTML = "";
-    const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
-    range(level).forEach(()=>{
-      const t=document.createElement("span");
-      t.className="tag";
-      t.textContent="💖";
-      starsWrap.appendChild(t);
-    });
-
-    // 各運勢
-    $("#love").textContent  = pick(LOVE);
-    $("#work").textContent  = pick(WORK);
-    $("#money").textContent = pick(MONEY);
-
-    // ラッキーポイント（🎨 カラー / 🎁 アイテム / 📍 スポット）
-    const lucky=$("#lucky"); lucky.innerHTML="";
-    [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
-      const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
-    });
-
-    // 開運アドバイス
-    $("#advice").textContent = pick(ADVICES);
-
-    // 特別メッセージ（総合運でバケット切替）
-    const box=$("#specialBox"), msgBox=$("#specialMsg");
-    let bucket="neutral";
-    if(rank==="大吉"||rank==="中吉") bucket="good";
-    if(rank==="末吉"||rank==="凶")   bucket="low";
-    msgBox.textContent = pick(SPECIAL[bucket]);
-    box.hidden = false;
-
-    // クリック計測（rank付与）
-    const addParam=(url,key,val)=>{ try{const u=new URL(url,location.href); u.searchParams.set(key,val); return u.toString();}catch{ return url; } };
-    const app=$("#ctaApp"), con=$("#ctaConsult");
-    app.href = addParam(app.href,"rank",rank);
-    con.href = addParam(con.href,"rank",rank);
-
-    again.disabled=false; share.disabled=false;
+  function safeAddParam(url,key,val){
+    try{
+      const u = new URL(url, location.href);
+      u.searchParams.set(key,val);
+      return u.toString();
+    }catch(e){
+      return url;
+    }
   }
 
-  btn.addEventListener("click", draw);
-  again.addEventListener("click", draw);
-  share.addEventListener("click", async ()=>{
-    const text = `❤みみちゃん占い❤\n${$("#total").textContent}\n`
-      + `💘 ${$("#love").textContent}\n💼 ${$("#work").textContent}\n💰 ${$("#money").textContent}\n`
-      + `🎨/🎁/📍 ${$("#lucky").innerText}\n🪄 ${$("#advice").textContent}\n`;
+  function draw(){
+    try{
+      area.hidden = false;
+
+      const [rank,msg] = pick(TOTAL);
+      document.querySelector("#total").textContent = `${rank}　${msg}`;
+
+      const starsWrap = document.querySelector("#stars");
+      starsWrap.innerHTML = "";
+      const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
+      range(level).forEach(()=>{
+        const t=document.createElement("span");
+        t.className="tag";
+        t.textContent="💖";
+        starsWrap.appendChild(t);
+      });
+
+      document.querySelector("#love").textContent  = pick(LOVE);
+      document.querySelector("#work").textContent  = pick(WORK);
+      document.querySelector("#money").textContent = pick(MONEY);
+
+      const lucky = document.querySelector("#lucky"); lucky.innerHTML="";
+      [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
+        const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
+      });
+
+      document.querySelector("#advice").textContent = pick(ADVICES);
+
+      const box=document.querySelector("#specialBox"), msgBox=document.querySelector("#specialMsg");
+      let bucket="neutral";
+      if(rank==="大吉"||rank==="中吉") bucket="good";
+      if(rank==="末吉"||rank==="凶")   bucket="low";
+      msgBox.textContent = pick(SPECIAL[bucket]);
+      box.hidden = false;
+
+      const app=document.querySelector("#ctaApp"), con=document.querySelector("#ctaConsult");
+      if(app) app.href = safeAddParam(app.href,"rank",rank);
+      if(con) con.href = safeAddParam(con.href,"rank",rank);
+
+      again.disabled=false; share.disabled=false;
+    }catch(e){
+      alert("エラーが出たので安全に止めました。ページを更新してもう一度お試しください。");
+      console.error(e);
+    }
+  }
+
+  // イベント登録（必ず実行されるように）
+  btn && btn.addEventListener("click", draw);
+  again && again.addEventListener("click", draw);
+  share && share.addEventListener("click", async ()=>{
+    const text = `❤みみちゃん占い❤\n${document.querySelector("#total").textContent}\n`
+      + `💘 ${document.querySelector("#love").textContent}\n💼 ${document.querySelector("#work").textContent}\n💰 ${document.querySelector("#money").textContent}\n`
+      + `🎨/🎁/📍 ${document.querySelector("#lucky").innerText}\n🪄 ${document.querySelector("#advice").textContent}\n`;
     if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
     else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
     else{ prompt("結果をコピーして使ってください👇", text); }
   });
-})();
-</script>
+
+})();</script>
 </body>
 </html>
