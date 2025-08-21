@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>❤みみちゃん占い❤</title>
+<title>❤みみちゃん占い❤（診断版）</title>
 <style>
   :root{ --pink:#f8a5c2; --hotpink:#f48fb1; --bg:#fff6fb; --ink:#333; --card:#ffffff; --shadow:0 10px 25px rgba(255,79,161,.25); }
   *{box-sizing:border-box}
@@ -33,7 +33,6 @@
   .muted{opacity:.9}
   .footer{ text-align:center; margin-top:18px; font-size:12px; opacity:.7 }
 
-  /* 特別メッセージ＆CTA */
   .special{ background:#fff; border:1px solid #ffe5f1; border-radius:16px; padding:16px; box-shadow:0 6px 16px rgba(255,79,161,.08) }
   .special .title{ font-weight:700; color:#a4005a; margin-bottom:8px; display:flex; align-items:center; gap:8px }
   .special .msg{ line-height:1.9 }
@@ -57,9 +56,9 @@
     <p class="lead">「占う」を押すと、総合運・恋愛・仕事・金運・ラッキーカラー・ラッキーアイテム・開運アドバイスが出ます。</p>
 
     <div class="controls">
-      <!-- ★ クリックで必ず draw() が呼ばれるようにした -->
-      <button class="primary" id="drawBtn" onclick="draw()">占う ✨</button>
-      <button class="ghost" id="againBtn" onclick="draw()" disabled>もう一回引く</button>
+      <!-- 診断のため onclick を直付け -->
+      <button class="primary" id="drawBtn" onclick="try{ draw(); }catch(e){ alert('draw未定義/実行時エラー: '+e.message); }">占う ✨</button>
+      <button class="ghost" id="againBtn" onclick="try{ draw(); }catch(e){ alert('draw未定義/実行時エラー: '+e.message); }" disabled>もう一回引く</button>
       <button class="ghost" id="shareBtn" disabled>結果をシェア</button>
     </div>
 
@@ -93,7 +92,6 @@
         <div id="advice" class="muted">—</div>
       </section>
 
-      <!-- 特別メッセージ枠 -->
       <section class="w12 special" id="specialBox" hidden>
         <div class="title">💌 特別メッセージ（愛され直しのヒント）</div>
         <div id="specialMsg" class="msg">—</div>
@@ -113,9 +111,15 @@
   </div>
 
 <script>
-/* ===== 安定版スクリプト ===== */
-(function(){
-  const $ = s => document.querySelector(s);
+/* どこかでJSエラーが出たら内容を知らせる（診断用） */
+window.onerror = function(msg, src, line, col){
+  alert("JSエラー: " + msg + " @ " + line + ":" + col);
+};
+
+/* ==== 必ずグローバルに関数を公開 ==== */
+function draw(){
+  alert("起動OK"); // ←診断用。押せていれば必ず出ます（後で消せます）
+
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
   const range = n => [...Array(n).keys()];
 
@@ -178,54 +182,42 @@
     ]
   ];
 
-  function safeAddParam(url,key,val){
-    try{ const u=new URL(url,location.href); u.searchParams.set(key,val); return u.toString(); }
-    catch(e){ return url; }
-  }
+  const area = document.querySelector("#resultArea");
+  area.hidden = false;
 
-  function draw(){
-    const area = document.querySelector("#resultArea");
-    area.hidden = false;
+  const [rank,msg] = TOTAL[Math.floor(Math.random()*TOTAL.length)];
+  document.querySelector("#total").textContent = `${rank}　${msg}`;
 
-    const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-    const range = n => [...Array(n).keys()];
+  const starsWrap = document.querySelector("#stars");
+  starsWrap.innerHTML = "";
+  const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
+  [...Array(level).keys()].forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="💖"; starsWrap.appendChild(t); });
 
-    const [rank,msg] = pick(TOTAL);
-    document.querySelector("#total").textContent = `${rank}　${msg}`;
+  document.querySelector("#love").textContent  = LOVE[Math.floor(Math.random()*LOVE.length)];
+  document.querySelector("#work").textContent  = WORK[Math.floor(Math.random()*WORK.length)];
+  document.querySelector("#money").textContent = MONEY[Math.floor(Math.random()*MONEY.length)];
 
-    const starsWrap = document.querySelector("#stars");
-    starsWrap.innerHTML = "";
-    const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
-    range(level).forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="💖"; starsWrap.appendChild(t); });
+  const lucky = document.querySelector("#lucky"); lucky.innerHTML="";
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+  [["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)]].forEach(([label,val])=>{
+    const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
+  });
 
-    document.querySelector("#love").textContent  = pick(LOVE);
-    document.querySelector("#work").textContent  = pick(WORK);
-    document.querySelector("#money").textContent = pick(MONEY);
+  document.querySelector("#advice").textContent = ADVICES[Math.floor(Math.random()*ADVICES.length)];
 
-    const lucky = document.querySelector("#lucky"); lucky.innerHTML="";
-    [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
-      const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
-    });
+  const box=document.querySelector("#specialBox"), msgBox=document.querySelector("#specialMsg");
+  let bucket="neutral"; if(rank==="大吉"||rank==="中吉") bucket="good"; if(rank==="末吉"||rank==="凶") bucket="low";
+  msgBox.textContent = pick(SPECIAL[bucket]); box.hidden = false;
 
-    document.querySelector("#advice").textContent = pick(ADVICES);
+  document.querySelector("#againBtn").disabled=false;
+  document.querySelector("#shareBtn").disabled=false;
+}
 
-    const box=document.querySelector("#specialBox"), msgBox=document.querySelector("#specialMsg");
-    let bucket="neutral"; if(rank==="大吉"||rank==="中吉") bucket="good"; if(rank==="末吉"||rank==="凶") bucket="low";
-    msgBox.textContent = pick(SPECIAL[bucket]); box.hidden = false;
-
-    const app=document.querySelector("#ctaApp"), con=document.querySelector("#ctaConsult");
-    if(app) app.href = safeAddParam(app.href,"rank",rank);
-    if(con) con.href = safeAddParam(con.href,"rank",rank);
-
-    document.querySelector("#againBtn").disabled=false;
-    document.querySelector("#shareBtn").disabled=false;
-  }
-
-  // ★ どんな環境でも呼べるようにグローバル公開
-  window.draw = draw;
-
-  // 共有ボタンは addEventListener も併用
-  document.querySelector("#shareBtn").addEventListener("click", async ()=>{
+/* 共有ボタン（従来通り） */
+document.addEventListener("DOMContentLoaded", ()=>{
+  const shareBtn = document.querySelector("#shareBtn");
+  if(!shareBtn) return;
+  shareBtn.addEventListener("click", async ()=>{
     const text = `❤みみちゃん占い❤\n${document.querySelector("#total").textContent}\n`
       + `💘 ${document.querySelector("#love").textContent}\n💼 ${document.querySelector("#work").textContent}\n💰 ${document.querySelector("#money").textContent}\n`
       + `🎨/🎁/📍 ${document.querySelector("#lucky").innerText}\n🪄 ${document.querySelector("#advice").textContent}\n`;
@@ -233,7 +225,7 @@
     else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
     else{ prompt("結果をコピーして使ってください👇", text); }
   });
-})();
+});
 </script>
 </body>
 </html>
