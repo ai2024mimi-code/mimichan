@@ -190,7 +190,7 @@
     const starsWrap = $("#stars");
     starsWrap.innerHTML = "";
     const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
-    range(level).forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="★"; starsWrap.appendChild(t); });
+    range(level).forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="💖"; starsWrap.appendChild(t); });
 
     // 各運勢
     $("#love").textContent  = pick(LOVE);
@@ -199,7 +199,7 @@
 
     // ラッキーポイント
     const lucky=$("#lucky"); lucky.innerHTML="";
-    [ ["🎨 色", pick(COLORS)], ["🎁 物", pick(ITEMS)], ["📍 場所", pick(SPOTS)] ].forEach(([label,val])=>{
+    [ ["🎨 色", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 場所", pick(SPOTS)] ].forEach(([label,val])=>{
       const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
     });
 
@@ -223,3 +223,4 @@
 </script>
 </body>
 </html>
+
