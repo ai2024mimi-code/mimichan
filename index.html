@@ -38,9 +38,16 @@
   .special .title{ font-weight:700; color:#a4005a; margin-bottom:8px; display:flex; align-items:center; gap:8px }
   .special .msg{ line-height:1.9 }
   .cta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
-  .btn-link{ display:inline-block; text-decoration:none; font-weight:700; border-radius:999px; padding:10px 14px; border:2px solid var(--hotpink); color:#fff; background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06) }
+
+  /* ▼▼ ここが修正ポイント：CTAボタンをやさしいピンク背景＋濃いピンク枠＋白文字で統一 ▼▼ */
+  .btn-link{
+    display:inline-block; text-decoration:none; font-weight:700; border-radius:999px; padding:10px 14px;
+    border:2px solid var(--hotpink); background:var(--pink); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06);
+  }
   .btn-link.primary{ background:var(--pink); color:#fff; border-color:var(--hotpink) }
   .btn-link:active{ transform:translateY(1px) scale(.99) }
+  /* ▲▲ 修正ここまで ▲▲ */
+
   .note{ font-size:12px; opacity:.75; margin-top:6px }
 </style>
 </head>
@@ -91,7 +98,6 @@
         <div class="title">💌 特別メッセージ（愛され直しのヒント）</div>
         <div id="specialMsg" class="msg">—</div>
         <div class="cta-row">
-    
           <a class="btn-link primary" id="ctaApp" 
              href="https://wild-durian-7e0.notion.site/40-50-256f18996dfa80ab818bc8cead4ed590?source=copy_link" 
              target="_blank" rel="noopener nofollow">出会いのチャンスを広げる（おすすめアプリ）</a>
@@ -173,7 +179,7 @@
       "今日は守りの日。無理せず安心を最優先に。ほんの少しの自己ケアが、明日を軽くします。",
       "つらい記憶が顔を出したら深呼吸を3回。過去はあなたの価値を決めません。今ここから、また愛されていけます。"
     ]
-  };
+  ];
 
   /* ===== ヘルパ ===== */
   const pick = arr => arr[Math.floor(Math.random()*arr.length)];
@@ -205,7 +211,7 @@
     $("#work").textContent  = pick(WORK);
     $("#money").textContent = pick(MONEY);
 
-    // ラッキーポイント（🎁 アイテム）
+    // ラッキーポイント（🎨 カラー / 🎁 アイテム / 📍 スポット）
     const lucky=$("#lucky"); lucky.innerHTML="";
     [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
       const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
@@ -222,7 +228,7 @@
     msgBox.textContent = pick(SPECIAL[bucket]);
     box.hidden = false;
 
-    // クリック計測（rank付与）※必要なければ削除OK
+    // クリック計測（rank付与）
     const addParam=(url,key,val)=>{ try{const u=new URL(url,location.href); u.searchParams.set(key,val); return u.toString();}catch{ return url; } };
     const app=$("#ctaApp"), con=$("#ctaConsult");
     app.href = addParam(app.href,"rank",rank);
@@ -235,7 +241,7 @@
   again.addEventListener("click", draw);
   share.addEventListener("click", async ()=>{
     const text = `❤みみちゃん占い❤\n${$("#total").textContent}\n`
-      + `💕 ${$("#love").textContent}\n💼 ${$("#work").textContent}\n💰 ${$("#money").textContent}\n`
+      + `💘 ${$("#love").textContent}\n💼 ${$("#work").textContent}\n💰 ${$("#money").textContent}\n`
       + `🎨/🎁/📍 ${$("#lucky").innerText}\n🪄 ${$("#advice").textContent}\n`;
     if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
     else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
@@ -245,5 +251,3 @@
 </script>
 </body>
 </html>
-
-
