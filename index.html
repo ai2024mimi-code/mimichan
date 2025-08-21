@@ -1,34 +1,224 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>みみちゃん占い</title>
-  <style>
-    body { font-family: "Arial", sans-serif; text-align: center; padding: 50px; }
-    h1 { color: #ff3399; }
-    button { padding: 10px 20px; font-size: 18px; margin-top: 20px; }
-    #result { margin-top: 30px; font-size: 20px; color: #333; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>みみちゃん占い</title>
+<style>
+  :root{
+    --pink:#ff89b5; --hotpink:#ff4fa1; --bg:#fff6fb; --ink:#333;
+    --card:#ffffff; --shadow:0 10px 25px rgba(255,79,161,.25);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(1200px 600px at 80% -10%, #ffe3f1 0%, transparent 60%),
+                radial-gradient(1000px 500px at -10% 110%, #ffeaf6 0%, transparent 60%), var(--bg);
+    color:var(--ink); display:flex; min-height:100svh; align-items:center; justify-content:center; padding:24px;
+  }
+  .app{
+    width:min(720px, 100%); background:var(--card); border-radius:24px; box-shadow:var(--shadow);
+    padding:24px 22px 28px; position:relative; overflow:hidden;
+  }
+  .ribbon{
+    position:absolute; inset:auto -40px 18px auto; transform:rotate(12deg);
+    background:linear-gradient(135deg,#ffd9ec,var(--pink)); color:#a4005a; padding:6px 22px; border-radius:12px; font-weight:700;
+    box-shadow:0 6px 18px rgba(255,105,180,.35);
+  }
+  h1{
+    margin:8px 0 12px; text-align:center; font-size:clamp(22px,4vw,28px); color:var(--hotpink);
+  }
+  p.lead{ text-align:center; margin:0 0 18px; opacity:.8 }
+  .controls{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:16px 0 20px }
+  button{
+    border:0; border-radius:999px; padding:12px 18px; font-size:16px; cursor:pointer; transition:transform .04s ease, filter .2s;
+    box-shadow:0 6px 14px rgba(0,0,0,.06);
+  }
+  .primary{ background:var(--hotpink); color:#fff }
+  .ghost{ background:#fff; color:var(--hotpink); border:2px solid var(--hotpink) }
+  button:active{ transform:translateY(1px) scale(.99) }
+  .grid{
+    display:grid; gap:12px;
+    grid-template-columns: repeat(12,1fr);
+  }
+  .card{
+    background:#fff; border:1px solid #ffe5f1; border-radius:16px; padding:14px 16px; box-shadow:0 6px 16px rgba(255,79,161,.08);
+  }
+  .w12{grid-column:span 12}
+  .w6{grid-column:span 12}
+  @media (min-width:720px){ .w6{grid-column:span 6} }
+  .title{font-weight:700; color:#a4005a; margin-bottom:6px; display:flex; align-items:center; gap:8px}
+  .big{ font-size:clamp(22px,4.6vw,34px); line-height:1.2 }
+  .tags{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+  .tag{ padding:6px 10px; background:#fff0f7; border:1px dashed #ffc2df; border-radius:999px; font-size:13px }
+  .muted{opacity:.8}
+  .footer{ text-align:center; margin-top:18px; font-size:12px; opacity:.7 }
+</style>
 </head>
 <body>
-  <h1>みみちゃん占い🎀</h1>
-  <p>今日の運勢を占ってみよう！</p>
-  <button onclick="omikuji()">占う</button>
-  <div id="result"></div>
+  <div class="app" role="application" aria-live="polite">
+    <span class="ribbon">mimi-chan ✦ fortune</span>
+    <h1>みみちゃん占い 🎀</h1>
+    <p class="lead">「占う」を押すと、総合運・恋愛・仕事・金運・ラッキーカラー・ラッキーアイテム・開運アドバイスが出ます。</p>
 
-  <script>
-    function omikuji() {
-      const results = [
-        "大吉 ✨ 今日一日最高にハッピー！",
-        "中吉 😊 良いことがありそう！",
-        "小吉 🍀 ちょっとした幸せが訪れるかも",
-        "吉 🌸 穏やかで良い一日になります",
-        "凶 💦 気をつけて過ごせば大丈夫！"
-      ];
-      const random = Math.floor(Math.random() * results.length);
-      document.getElementById("result").innerText = results[random];
+    <div class="controls">
+      <button class="primary" id="drawBtn">占う ✨</button>
+      <button class="ghost" id="againBtn" disabled>もう一回引く</button>
+      <button class="ghost" id="shareBtn" disabled>結果をシェア</button>
+    </div>
+
+    <div class="grid" id="resultArea" hidden>
+      <section class="card w12">
+        <div class="title">📜 今日の運勢（だいじ）</div>
+        <div id="total" class="big">—</div>
+        <div class="tags" id="stars"></div>
+      </section>
+
+      <section class="card w6">
+        <div class="title">💕 恋愛運</div>
+        <div id="love">—</div>
+      </section>
+      <section class="card w6">
+        <div class="title">💼 仕事運</div>
+        <div id="work">—</div>
+      </section>
+
+      <section class="card w6">
+        <div class="title">💰 金運</div>
+        <div id="money">—</div>
+      </section>
+      <section class="card w6">
+        <div class="title">🎯 ラッキーポイント</div>
+        <div class="tags" id="lucky"></div>
+      </section>
+
+      <section class="card w12">
+        <div class="title">🪄 開運アドバイス</div>
+        <div id="advice" class="muted">—</div>
+      </section>
+    </div>
+
+    <div class="footer">© mimi-chan uranai</div>
+  </div>
+
+<script>
+(() => {
+  // ★ 基本データ（好みに合わせて増やせます）
+  const TOTAL = [
+    ["大吉","最高の波！思い切り楽しんで🌈"],
+    ["中吉","いい風が吹く日。動けばチャンス🌟"],
+    ["小吉","小さな喜びが積み上がる日🍀"],
+    ["吉","穏やか。丁寧に過ごして🌸"],
+    ["末吉","焦らず準備にまわすと◎"],
+    ["凶","無理せずセーブ、守りの日🫶"]
+  ];
+
+  const LOVE = [
+    "笑顔の挨拶が縁を引き寄せるよ。",
+    "連絡は短く丁寧に。会話のキャッチボールを意識。",
+    "甘えすぎ注意。感謝の一言を忘れずに。",
+    "一緒に食べる温かいものが愛を深める。",
+    "思い込みを外して相手のペースに寄り添うと◎。",
+    "鏡を見る回数＝モテ度UPの合図。"
+  ];
+
+  const WORK = [
+    "午前中が勝負。先に重いタスクから！",
+    "メモ魔になろう。段取りで捗る日。",
+    "頼られることで評価UP。ひと声かけて手伝いを。",
+    "チェックの鬼になってミス回避。",
+    "小さな改善提案が通りやすい。",
+    "資料の余白を整えるだけで伝わり方が激変。"
+  ];
+
+  const MONEY = [
+    "ポイント活用で得する日。必要な物だけに◎",
+    "値引きより“長く使えるか”で判断を。",
+    "現金を少し多めに持つと安心。",
+    "サブスクの見直しチャンス！",
+    "買うより借りる・シェアが吉。",
+    "寄付や差し入れで巡り巡って返ってくる。"
+  ];
+
+  const COLORS = ["さくらピンク","ミントグリーン","ラベンダー","空色","ミルクホワイト","コーラル","ハニーイエロー","ネイビー","シャンパンゴールド","アイスグレー"];
+  const ITEMS  = ["ハンカチ","小さな鏡","お茶","イヤホン","ペン","アロマ","温かい飲み物","マスクケース","飴ちゃん","目薬","ストレッチ","スマホの写真整理"];
+  const SPOTS  = ["朝の光","緑の見える場所","静かな角席","本屋さん","神社の鳥居","カフェの窓際","きれいなトイレ","駅のホームの端","近所の公園","エレベーター前で深呼吸"];
+
+  const ADVICES = [
+    "“3回深呼吸→微笑む”で運の流れが整うよ。",
+    "やることを3つだけ書き出して、終わったら小さくガッツポーズ。",
+    "姿勢を1cmだけ伸ばす。世界の見え方が変わる。",
+    "クローズドな靴より、足元の清潔感に気を配って。",
+    "お礼は“具体＋即”。相手の名前を添えると最強。",
+    "15分の散歩でアイデア湧く。歩きながら太陽を見る。"
+  ];
+
+  // ★ 乱数ヘルパ
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const range = n => [...Array(n).keys()];
+
+  // ★ 表示要素
+  const $ = sel => document.querySelector(sel);
+  const area   = $("#resultArea");
+  const btn    = $("#drawBtn");
+  const again  = $("#againBtn");
+  const share  = $("#shareBtn");
+
+  function draw(){
+    area.hidden = false;
+
+    // 総合
+    const [rank, msg] = pick(TOTAL);
+    $("#total").textContent = `${rank}　${msg}`;
+
+    // 星（大吉=5 ★、… のように遊び心）
+    const starsWrap = $("#stars");
+    starsWrap.innerHTML = "";
+    const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
+    range(level).forEach(()=> {
+      const t = document.createElement("span"); t.className="tag"; t.textContent="★";
+      starsWrap.appendChild(t);
+    });
+
+    // 各運勢
+    $("#love").textContent  = pick(LOVE);
+    $("#work").textContent  = pick(WORK);
+    $("#money").textContent = pick(MONEY);
+
+    // ラッキー情報（カラー/アイテム/スポットを3つ）
+    const luckyWrap = $("#lucky");
+    luckyWrap.innerHTML = "";
+    [ ["🎨 色", pick(COLORS)], ["🎁 物", pick(ITEMS)], ["📍 場所", pick(SPOTS)] ].forEach(([label, val])=>{
+      const tag = document.createElement("span");
+      tag.className="tag"; tag.textContent = `${label}: ${val}`;
+      luckyWrap.appendChild(tag);
+    });
+
+    // アドバイス
+    $("#advice").textContent = pick(ADVICES);
+
+    again.disabled = false;
+    share.disabled = false;
+  }
+
+  btn.addEventListener("click", draw);
+  again.addEventListener("click", draw);
+
+  share.addEventListener("click", async () => {
+    const text = `みみちゃん占い🎀\n${$("#total").textContent}\n`
+      + `💕 ${$("#love").textContent}\n💼 ${$("#work").textContent}\n💰 ${$("#money").textContent}\n`
+      + `🪄 ${$("#advice").textContent}\n`;
+    // Web Share API（対応ブラウザならシェア、未対応ならクリップボード）
+    if (navigator.share) {
+      try{ await navigator.share({text}); }catch(e){}
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+      alert("結果をコピーしました。SNSに貼り付けてシェアできます✨");
+    } else {
+      prompt("結果をコピーして使ってください👇", text);
     }
-  </script>
+  });
+})();
+</script>
 </body>
 </html>
