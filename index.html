@@ -57,8 +57,9 @@
     <p class="lead">「占う」を押すと、総合運・恋愛・仕事・金運・ラッキーカラー・ラッキーアイテム・開運アドバイスが出ます。</p>
 
     <div class="controls">
-      <button class="primary" id="drawBtn">占う ✨</button>
-      <button class="ghost" id="againBtn" disabled>もう一回引く</button>
+      <!-- ★ クリックで必ず draw() が呼ばれるようにした -->
+      <button class="primary" id="drawBtn" onclick="draw()">占う ✨</button>
+      <button class="ghost" id="againBtn" onclick="draw()" disabled>もう一回引く</button>
       <button class="ghost" id="shareBtn" disabled>結果をシェア</button>
     </div>
 
@@ -112,11 +113,12 @@
   </div>
 
 <script>
-/* ===== 安定動作用のガード（どこかでエラーが出てもボタンが無反応にならないように） ===== */
+/* ===== 安定版スクリプト ===== */
 (function(){
   const $ = s => document.querySelector(s);
+  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+  const range = n => [...Array(n).keys()];
 
-  // 配列群
   const TOTAL = [
     ["大吉","願いが実るサイン。大胆にいこう🌈"],
     ["大吉","タイミングが噛み合う日。直感に従って✨"],
@@ -176,74 +178,54 @@
     ]
   ];
 
-  const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-  const range = n => [...Array(n).keys()];
-
-  const area  = $("#resultArea");
-  const btn   = $("#drawBtn");
-  const again = $("#againBtn");
-  const share = $("#shareBtn");
-
   function safeAddParam(url,key,val){
-    try{
-      const u = new URL(url, location.href);
-      u.searchParams.set(key,val);
-      return u.toString();
-    }catch(e){
-      return url;
-    }
+    try{ const u=new URL(url,location.href); u.searchParams.set(key,val); return u.toString(); }
+    catch(e){ return url; }
   }
 
   function draw(){
-    try{
-      area.hidden = false;
+    const area = document.querySelector("#resultArea");
+    area.hidden = false;
 
-      const [rank,msg] = pick(TOTAL);
-      document.querySelector("#total").textContent = `${rank}　${msg}`;
+    const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+    const range = n => [...Array(n).keys()];
 
-      const starsWrap = document.querySelector("#stars");
-      starsWrap.innerHTML = "";
-      const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
-      range(level).forEach(()=>{
-        const t=document.createElement("span");
-        t.className="tag";
-        t.textContent="💖";
-        starsWrap.appendChild(t);
-      });
+    const [rank,msg] = pick(TOTAL);
+    document.querySelector("#total").textContent = `${rank}　${msg}`;
 
-      document.querySelector("#love").textContent  = pick(LOVE);
-      document.querySelector("#work").textContent  = pick(WORK);
-      document.querySelector("#money").textContent = pick(MONEY);
+    const starsWrap = document.querySelector("#stars");
+    starsWrap.innerHTML = "";
+    const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
+    range(level).forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="💖"; starsWrap.appendChild(t); });
 
-      const lucky = document.querySelector("#lucky"); lucky.innerHTML="";
-      [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
-        const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
-      });
+    document.querySelector("#love").textContent  = pick(LOVE);
+    document.querySelector("#work").textContent  = pick(WORK);
+    document.querySelector("#money").textContent = pick(MONEY);
 
-      document.querySelector("#advice").textContent = pick(ADVICES);
+    const lucky = document.querySelector("#lucky"); lucky.innerHTML="";
+    [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
+      const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
+    });
 
-      const box=document.querySelector("#specialBox"), msgBox=document.querySelector("#specialMsg");
-      let bucket="neutral";
-      if(rank==="大吉"||rank==="中吉") bucket="good";
-      if(rank==="末吉"||rank==="凶")   bucket="low";
-      msgBox.textContent = pick(SPECIAL[bucket]);
-      box.hidden = false;
+    document.querySelector("#advice").textContent = pick(ADVICES);
 
-      const app=document.querySelector("#ctaApp"), con=document.querySelector("#ctaConsult");
-      if(app) app.href = safeAddParam(app.href,"rank",rank);
-      if(con) con.href = safeAddParam(con.href,"rank",rank);
+    const box=document.querySelector("#specialBox"), msgBox=document.querySelector("#specialMsg");
+    let bucket="neutral"; if(rank==="大吉"||rank==="中吉") bucket="good"; if(rank==="末吉"||rank==="凶") bucket="low";
+    msgBox.textContent = pick(SPECIAL[bucket]); box.hidden = false;
 
-      again.disabled=false; share.disabled=false;
-    }catch(e){
-      alert("エラーが出たので安全に止めました。ページを更新してもう一度お試しください。");
-      console.error(e);
-    }
+    const app=document.querySelector("#ctaApp"), con=document.querySelector("#ctaConsult");
+    if(app) app.href = safeAddParam(app.href,"rank",rank);
+    if(con) con.href = safeAddParam(con.href,"rank",rank);
+
+    document.querySelector("#againBtn").disabled=false;
+    document.querySelector("#shareBtn").disabled=false;
   }
 
-  // イベント登録（必ず実行されるように）
-  btn && btn.addEventListener("click", draw);
-  again && again.addEventListener("click", draw);
-  share && share.addEventListener("click", async ()=>{
+  // ★ どんな環境でも呼べるようにグローバル公開
+  window.draw = draw;
+
+  // 共有ボタンは addEventListener も併用
+  document.querySelector("#shareBtn").addEventListener("click", async ()=>{
     const text = `❤みみちゃん占い❤\n${document.querySelector("#total").textContent}\n`
       + `💘 ${document.querySelector("#love").textContent}\n💼 ${document.querySelector("#work").textContent}\n💰 ${document.querySelector("#money").textContent}\n`
       + `🎨/🎁/📍 ${document.querySelector("#lucky").innerText}\n🪄 ${document.querySelector("#advice").textContent}\n`;
@@ -251,7 +233,7 @@
     else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
     else{ prompt("結果をコピーして使ってください👇", text); }
   });
-
-})();</script>
+})();
+</script>
 </body>
 </html>
