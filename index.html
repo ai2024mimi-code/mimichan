@@ -1,5 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>❤みみちゃん占い❤</title>
+<style>
+  :root{ --pink:#f8a5c2; --hot:#f48fb1; --bg:#fff6fb; --ink:#333; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",system-ui,sans-serif;
+       background:radial-gradient(1200px 600px at 80% -10%,#ffe3f1 0%,transparent 60%),
+                  radial-gradient(1000px 500px at -10% 110%,#ffeaf6 0%,transparent 60%),var(--bg);
+       color:var(--ink);min-height:100svh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .app{width:min(760px,100%);background:#fff;border-radius:24px;box-shadow:0 10px 25px rgba(255,79,161,.25);
+       padding:24px 22px 28px;position:relative;overflow:hidden}
+  h1{margin:8px 0 12px;text-align:center;font-size:clamp(22px,4vw,30px);color:var(--hot)}
+  p.lead{text-align:center;margin:0 0 18px;opacity:.85}
+  .controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:16px 0 20px}
+  button{border:0;border-radius:999px;padding:12px 18px;font-size:16px;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+  .primary{background:var(--hot);color:#fff}
+  .ghost{background:#fff;color:var(--hot);border:2px solid var(--hot)}
+  .grid{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+  .card{background:#fff;border:1px solid #ffe5f1;border-radius:16px;padding:14px 16px;box-shadow:0 6px 16px rgba(255,79,161,.08)}
+  .w12{grid-column:span 12}.w6{grid-column:span 12}@media (min-width:760px){.w6{grid-column:span 6}}
+  .title{font-weight:700;color:#a4005a;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .big{font-size:clamp(22px,4.6vw,34px);line-height:1.2}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .tag{padding:6px 10px;background:#fff0f7;border:1px dashed #ffc2df;border-radius:999px;font-size:13px}
+  .muted{opacity:.9}
+  .footer{text-align:center;margin-top:18px;font-size:12px;opacity:.7}
+  .special{background:#fff;border:1px solid #ffe5f1;border-radius:16px;padding:16px;box-shadow:0 6px 16px rgba(255,79,161,.08)}
+  .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  .btn-link{display:inline-block;text-decoration:none;font-weight:700;border-radius:999px;padding:10px 14px;
+            border:2px solid var(--hot);color:#fff;background:var(--pink);box-shadow:0 6px 14px rgba(0,0,0,.06)}
+</style>
+</head>
+<body>
+  <div class="app">
+    <h1>❤みみちゃん占い❤</h1>
+    <p class="lead">「占う」を押すと、総合運・恋愛・仕事・金運・ラッキーカラー・ラッキーアイテム・開運アドバイスが出ます。</p>
+
+    <div class="controls">
+      <button class="primary" id="drawBtn">占う ✨</button>
+      <button class="ghost" id="againBtn" disabled>もう一回引く</button>
+      <button class="ghost" id="shareBtn" disabled>結果をシェア</button>
+    </div>
+
+    <div class="grid" id="resultArea" hidden>
+      <section class="card w12">
+        <div class="title">⭐ 今日の運勢（総合運）</div>
+        <div id="total" class="big">—</div>
+        <div class="tags" id="stars"></div>
+      </section>
+
+      <section class="card w6"><div class="title">💘 恋愛運</div><div id="love">—</div></section>
+      <section class="card w6"><div class="title">💼 仕事運</div><div id="work">—</div></section>
+      <section class="card w6"><div class="title">💰 金運</div><div id="money">—</div></section>
+      <section class="card w6">
+        <div class="title">🎯 ラッキーポイント</div>
+        <div class="tags" id="lucky"></div>
+      </section>
+
+      <section class="card w12">
+        <div class="title">💫 開運アドバイス</div>
+        <div id="advice" class="muted">—</div>
+      </section>
+
+      <section class="w12 special" id="specialBox" hidden>
+        <div class="title">💌 特別メッセージ（愛され直しのヒント）</div>
+        <div id="specialMsg" class="msg">—</div>
+        <div class="cta-row">
+          <a class="btn-link" id="ctaApp"
+             href="https://wild-durian-7e0.notion.site/40-50-256f18996dfa80ab818bc8cead4ed590?source=copy_link"
+             target="_blank" rel="noopener nofollow">出会いのチャンスを広げる（おすすめアプリ）</a>
+          <a class="btn-link" id="ctaConsult"
+             href="https://calendly.com/ai2024mimi/30" target="_blank" rel="noopener">個別相談で“私の場合”を聞く</a>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">© mimi-chan uranai</div>
+  </div>
+
 <script>
-/* === みみちゃん占い：安定版（必ず window.draw を定義） === */
+/* === みみちゃん占い（必ず window.draw を定義）=== */
 (function(){
   const pick = a => a[Math.floor(Math.random()*a.length)];
   const range = n => [...Array(n).keys()];
@@ -31,9 +114,7 @@
     low: ["今日は守りの日。無理せず安心を最優先に。ほんの少しの自己ケアが、明日を軽くします。","つらい記憶が顔を出したら深呼吸を3回。過去はあなたの価値を決めません。今ここから、また愛されていけます。"]
   };
 
-  function safeParam(url,key,val){ try{ const u=new URL(url,location.href); u.searchParams.set(key,val); return u.toString(); }catch{ return url; } }
-
-  /* ★★★ ここでグローバル公開 ★★★ */
+  // ====== グローバル公開 draw() ======
   window.draw = function(){
     const area = document.querySelector("#resultArea");
     area.hidden = false;
@@ -41,8 +122,7 @@
     const [rank,msg] = pick(TOTAL);
     document.querySelector("#total").textContent = `${rank}　${msg}`;
 
-    const stars = document.querySelector("#stars");
-    stars.innerHTML = "";
+    const stars = document.querySelector("#stars"); stars.innerHTML="";
     const level = { "大吉":5, "中吉":4, "小吉":3, "吉":3, "末吉":2, "凶":1 }[rank] || 3;
     range(level).forEach(()=>{ const t=document.createElement("span"); t.className="tag"; t.textContent="💖"; stars.appendChild(t); });
 
@@ -64,23 +144,23 @@
     document.querySelector("#againBtn").disabled=false;
     document.querySelector("#shareBtn").disabled=false;
 
+    const safe=(url,k,v)=>{ try{const u=new URL(url,location.href); u.searchParams.set(k,v); return u.toString(); }catch{ return url; } };
     const app=document.querySelector("#ctaApp"), con=document.querySelector("#ctaConsult");
-    if(app) app.href = safeParam(app.href,"rank",rank);
-    if(con) con.href = safeParam(con.href,"rank",rank);
+    if(app) app.href=safe(app.href,"rank",rank);
+    if(con) con.href=safe(con.href,"rank",rank);
   };
 
-  // 共有ボタン
-  document.addEventListener("DOMContentLoaded", ()=>{
-    const sb = document.querySelector("#shareBtn");
-    if(!sb) return;
-    sb.addEventListener("click", async ()=>{
-      const text = `❤みみちゃん占い❤\n${document.querySelector("#total").textContent}\n`
-        + `💘 ${document.querySelector("#love").textContent}\n💼 ${document.querySelector("#work").textContent}\n💰 ${document.querySelector("#money").textContent}\n`
-        + `🎨/🎁/📍 ${document.querySelector("#lucky").innerText}\n🪄 ${document.querySelector("#advice").textContent}\n`;
-      if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
-      else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
-      else{ prompt("結果をコピーして使ってください👇", text); }
-    });
+  document.querySelector("#drawBtn").addEventListener("click", draw);
+  document.querySelector("#againBtn").addEventListener("click", draw);
+  document.querySelector("#shareBtn").addEventListener("click", async ()=>{
+    const text = `❤みみちゃん占い❤\n${document.querySelector("#total").textContent}\n`
+      + `💘 ${document.querySelector("#love").textContent}\n💼 ${document.querySelector("#work").textContent}\n💰 ${document.querySelector("#money").textContent}\n`
+      + `🎨/🎁/📍 ${document.querySelector("#lucky").innerText}\n🪄 ${document.querySelector("#advice").textContent}\n`;
+    if(navigator.share){ try{ await navigator.share({text}); }catch(e){} }
+    else if(navigator.clipboard){ await navigator.clipboard.writeText(text); alert("結果をコピーしました。SNSに貼り付けてシェアできます✨"); }
+    else{ prompt("結果をコピーして使ってください👇", text); }
   });
 })();
 </script>
+</body>
+</html>
