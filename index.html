@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>みみちゃん占い</title>
+  <style>
+    body { font-family: "Arial", sans-serif; text-align: center; padding: 50px; }
+    h1 { color: #ff3399; }
+    button { padding: 10px 20px; font-size: 18px; margin-top: 20px; }
+    #result { margin-top: 30px; font-size: 20px; color: #333; }
+  </style>
+</head>
+<body>
+  <h1>みみちゃん占い🎀</h1>
+  <p>今日の運勢を占ってみよう！</p>
+  <button onclick="omikuji()">占う</button>
+  <div id="result"></div>
+
+  <script>
+    function omikuji() {
+      const results = [
+        "大吉 ✨ 今日一日最高にハッピー！",
+        "中吉 😊 良いことがありそう！",
+        "小吉 🍀 ちょっとした幸せが訪れるかも",
+        "吉 🌸 穏やかで良い一日になります",
+        "凶 💦 気をつけて過ごせば大丈夫！"
+      ];
+      const random = Math.floor(Math.random() * results.length);
+      document.getElementById("result").innerText = results[random];
+    }
+  </script>
+</body>
+</html>
