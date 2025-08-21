@@ -58,13 +58,13 @@
 
     <div class="grid" id="resultArea" hidden>
       <section class="card w12">
-        <div class="title">📜 今日の運勢（総合運）</div>
+        <div class="title">⭐ 今日の運勢（総合運）</div>
         <div id="total" class="big">—</div>
         <div class="tags" id="stars"></div>
       </section>
 
       <section class="card w6">
-        <div class="title">💕 恋愛運</div>
+        <div class="title">💘 恋愛運</div>
         <div id="love">—</div>
       </section>
       <section class="card w6">
@@ -82,7 +82,7 @@
       </section>
 
       <section class="card w12">
-        <div class="title">🪄 開運アドバイス</div>
+        <div class="title">💫 開運アドバイス</div>
         <div id="advice" class="muted">—</div>
       </section>
 
@@ -207,7 +207,7 @@
 
     // ラッキーポイント（🎁 アイテム）
     const lucky=$("#lucky"); lucky.innerHTML="";
-    [ ["🎨 色", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 場所", pick(SPOTS)] ].forEach(([label,val])=>{
+    [ ["🎨 カラー", pick(COLORS)], ["🎁 アイテム", pick(ITEMS)], ["📍 スポット", pick(SPOTS)] ].forEach(([label,val])=>{
       const tag=document.createElement("span"); tag.className="tag"; tag.textContent=`${label}: ${val}`; lucky.appendChild(tag);
     });
 
@@ -245,3 +245,4 @@
 </script>
 </body>
 </html>
+
