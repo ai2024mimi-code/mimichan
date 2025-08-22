@@ -45,6 +45,38 @@
   .special{ background:#fff; border:1px solid #ffe5f1; border-radius:16px; padding:16px; box-shadow:0 6px 16px rgba(255,79,161,.08) }
   .special .title{ font-weight:700; color:#a4005a; margin-bottom:8px; display:flex; align-items:center; gap:8px }
   .special .msg{ line-height:1.9 }
+　.special .cta-row{
+  display:grid;
+  grid-template-columns: 1fr; /* スマホでは1列 */
+  gap:10px;
+  margin-top:12px;
+}
+
+.special .btn-link{
+  display:flex;
+  justify-content:center;     /* 水平方向センター */
+  align-items:center;         /* 垂直方向センター */
+  text-align:center;
+  width:100%;
+  min-height:72px;            /* 高さを揃える */
+  padding:12px 16px;
+  border-radius:999px;
+  font-weight:700;
+  text-decoration:none;
+  border:2px solid var(--hotpink);
+  background:#fff;
+  color:var(--hotpink);
+  box-shadow:0 6px 14px rgba(0,0,0,.06);
+  line-height:1.35;           /* 2行でも読みやすい */
+}
+
+.special .btn-link.primary{
+  background:var(--pink);
+  color:#fff;
+  border-color:var(--hotpink);
+}
+/* ▲ここまで差し替え */
+
   .cta-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
   .btn-link{ display:inline-block; text-decoration:none; font-weight:700; border-radius:999px; padding:10px 14px; border:2px solid var(--hotpink); color:var(--hotpink); background:#fff; box-shadow:0 6px 14px rgba(0,0,0,.06) }
   .btn-link.primary{ background:var(--pink); color:#fff; border-color:var(--hotpink) }
@@ -260,5 +292,6 @@
 </script>
 </body>
 </html>
+
 
 
